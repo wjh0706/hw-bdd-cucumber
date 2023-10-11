@@ -4,8 +4,9 @@ Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
+    Movie.create(movie)
   end
-  pending "Fill in this step in movie_steps.rb"
+  #pending "Fill in this step in movie_steps.rb"
 end
 
 Then /(.*) seed movies should exist/ do | n_seeds |
@@ -18,7 +19,16 @@ end
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
   #  ensure that that e1 occurs before e2.
   #  page.body is the entire content of the page as a string.
-  pending "Fill in this step in movie_steps.rb"
+  page_content = page.body
+
+  # Find the positions of e1 and e2 in the page content
+  position_e1 = page_content.index(e1)
+  position_e2 = page_content.index(e2)
+
+  # Assert that e1 occurs before e2 in the page content
+  if position_e1.nil? || position_e2.nil? || position_e1 > position_e2
+    raise "Expected '#{e1}' to appear before '#{e2}' on the page."
+  end
 end
 
 # Make it easier to express checking or unchecking several boxes at once
@@ -29,18 +39,41 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-  pending "Fill in this step in movie_steps.rb"
+  #
+  # Split the rating_list into an array of individual ratings
+  ratings = rating_list.split(',').map(&:strip)
+
+  # Iterate over the ratings and perform the check or uncheck action for each
+  ratings.each do |rating|
+    step %Q{I #{uncheck}check "ratings_#{rating}"}
+  end
 end
 
 # Part 2, Step 3
 Then /^I should (not )?see the following movies: (.*)$/ do |no, movie_list|
   # Take a look at web_steps.rb Then /^(?:|I )should see "([^"]*)"$/
-  pending "Fill in this step in movie_steps.rb"
+  #pending "Fill in this step in movie_steps.rb"
+    # Split the movie_list into an array of individual movie titles
+  movies = movie_list.split(',').map(&:strip)
+
+  # Check whether the movies should or should not be visible on the page
+  movies.each do |movie|
+    if no.nil?
+      step %Q{I should see "#{movie}"}
+    else
+      step %Q{I should not see "#{movie}"}
+    end
+  end
 end
 
 Then /I should see all the movies/ do
   # Make sure that all the movies in the app are visible in the table
-  pending "Fill in this step in movie_steps.rb"
+  all_movies = Movie.all  # This is an example; adjust it based on your app's data source and ORM
+
+  # Iterate through each movie and check if its title is visible on the page
+  all_movies.each do |movie|
+    step %Q{I should see "#{movie.title}"}
+  end
 end
 
 ### Utility Steps Just for this assignment.
